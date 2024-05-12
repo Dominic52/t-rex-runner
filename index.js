@@ -18,6 +18,21 @@
         }
         Runner.instance_ = this;
 
+        this.music = null;
+        this.currentTrack = null;
+
+        this.getShuffledArr = arr => {
+            const newArr = arr.slice()
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const rand = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
+            }
+            return newArr
+        };
+
+        this.shuffled_tracks = this.getShuffledArr(background_tracks);
+        console.log(this.shuffled_tracks);
+
         this.outerContainerEl = document.querySelector(outerContainerId);
         this.containerEl = null;
         this.snackbarEl = null;
@@ -73,6 +88,12 @@
     }
     window['Runner'] = Runner;
 
+    var background_tracks = [
+        "chamber_chu_secret_laboratory.mp3",
+        "mario_kart_coconut_mall.mp3",
+        "gareth_coker_the_waters_cleansed.mp3",
+        "no background track"
+    ]
 
     /**
      * Default game width.
@@ -497,6 +518,30 @@
             }
         },
 
+        playNextTrack: function() {
+            if (this.music){
+                this.music.pause();
+            }
+
+            if (this.shuffled_tracks.length === 0){
+                this.shuffled_tracks = this.getShuffledArr(background_tracks);
+                console.log("repopulating shuffled tracks");
+                console.log(this.shuffled_tracks);
+            }
+            console.log("playing " + this.shuffled_tracks[0]);
+            this.currentTrack = this.shuffled_tracks[0];
+
+            if (this.shuffled_tracks[0] === "no background track"){
+                this.shuffled_tracks.shift();
+                return;
+            }
+
+            this.music = new Audio("assets/sounds/" + this.shuffled_tracks[0])
+            this.music.volume = 0.5;
+            this.music.loop = true;
+            this.music.play();
+            this.shuffled_tracks.shift();
+        },
 
         /**
          * Update the game status to started.
@@ -508,6 +553,8 @@
             this.tRex.playingIntro = false;
             this.containerEl.style.webkitAnimation = '';
             this.playCount++;
+
+            this.playNextTrack();
 
             // Handle tabbing off the page. Pause the current game.
             document.addEventListener(Runner.events.VISIBILITY,
@@ -804,6 +851,12 @@
 
             // Reset the time clock.
             this.time = getTimeStamp();
+
+            console.log(`
+            summary 
+            current track: ${this.currentTrack} 
+            distance ran: ${Math.ceil(this.distanceRan)}
+            `);
         },
 
         stop: function () {
@@ -840,6 +893,7 @@
                 this.playSound(this.soundFx.BUTTON_PRESS);
                 this.invert(true);
                 this.update();
+                this.playNextTrack();
             }
         },
         
