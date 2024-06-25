@@ -49,6 +49,8 @@
 
         this.distanceMeter = null;
         this.distanceRan = 0;
+        this.upButtonPressCount = 0;
+        this.downButtonPressCount = 0;
 
         this.highestScore = 0;
 
@@ -749,6 +751,8 @@
             }
 
             if (this.playing && !this.crashed && Runner.keycodes.DUCK[e.keyCode]) {
+                console.log("down");
+                this.downButtonPressCount++;
                 e.preventDefault();
                 if (this.tRex.jumping) {
                     // Speed drop, activated only when jump key is not pressed.
@@ -772,6 +776,8 @@
                 e.type == Runner.events.MOUSEDOWN;
 
             if (this.isRunning() && isjumpKey) {
+                console.log("up");
+                this.upButtonPressCount++;
                 this.tRex.endJump();
             } else if (Runner.keycodes.DUCK[keyCode]) {
                 this.tRex.speedDrop = false;
@@ -856,6 +862,8 @@
             summary 
             current track: ${this.currentTrack} 
             distance ran: ${Math.ceil(this.distanceRan)}
+            up button press: ${this.upButtonPressCount}
+            down button press: ${this.downButtonPressCount}
             `);
         },
 
@@ -883,6 +891,8 @@
                 this.playing = true;
                 this.crashed = false;
                 this.distanceRan = 0;
+                this.upButtonPressCount = 0;
+                this.downButtonPressCount = 0;
                 this.setSpeed(this.config.SPEED);
                 this.time = getTimeStamp();
                 this.containerEl.classList.remove(Runner.classes.CRASHED);
